@@ -4,33 +4,35 @@ const InvariantError = require('../../exceptions/InvariantError')
 const NotFoundError = require('../../exceptions/NotFoundError')
 const { mapRowToModel } = require('../../utils/postgres')
 
+const mapSongRowToModel = (song) => {
+  const albumId = song.album_id
+  delete song.album_id
+
+  return {
+    ...mapRowToModel(song),
+    albumId
+  }
+}
+
 class SongsService {
   constructor () {
     this._pool = new Pool()
   }
 
-  async create ({ title, body, tags }) {
-    const id = nanoid(16)
-    const createdAt = new Date().toISOString()
-    const updatedAt = createdAt
+  async getAll ({
+    title = undefined,
+    performer = undefined,
+    albumId = undefined
+  }) {
+    const where = []
 
-    const query = {
-      text: 'INSERT INTO songs VALUES($1, $2, $3, $4, $5, $6) RETURNING id',
-      values: [id, title, body, tags, createdAt, updatedAt]
-    }
+    if (title) where.push(`title ilike '%${title}%'`)
+    if (performer) where.push(`performer ilike '%${performer}%'`)
+    if (albumId) where.push(`album_id = '${albumId}'`)
 
-    const result = await this._pool.query(query)
-
-    if (!result.rows[0].id) {
-      throw new InvariantError('Lagu gagal ditambahkan')
-    }
-
-    return result.rows[0].id
-  }
-
-  async getAll () {
-    const result = await this._pool.query('SELECT * FROM songs')
-    return result.rows.map(mapRowToModel)
+    const result = await this._pool.query(`SELECT id, title, performer FROM songs
+    ${where.length > 0 ? ' WHERE ' + where.join(' AND ') : ''} `)
+    return result.rows.map(mapSongRowToModel)
   }
 
   async getById (id) {
@@ -44,14 +46,33 @@ class SongsService {
       throw new NotFoundError('Lagu tidak ditemukan')
     }
 
-    return result.rows.map(mapDBToModel)[0]
+    return result.rows.map(mapSongRowToModel)[0]
   }
 
-  async updateById (id, { title, body, tags }) {
+  async create ({ title, year, genre, performer, duration, albumId }) {
+    const id = nanoid(16)
+    const createdAt = new Date().toISOString()
+    const updatedAt = createdAt
+
+    const query = {
+      text: 'INSERT INTO songs VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id',
+      values: [id, title, year, genre, performer, duration, albumId, createdAt, updatedAt]
+    }
+
+    const result = await this._pool.query(query)
+
+    if (!result.rows[0].id) {
+      throw new InvariantError('Lagu gagal ditambahkan')
+    }
+
+    return result.rows[0].id
+  }
+
+  async updateById (id, { title, year, genre, performer, duration, albumId }) {
     const updatedAt = new Date().toISOString()
     const query = {
-      text: 'UPDATE songs SET title = $1, body = $2, tags = $3, updated_at = $4 WHERE id = $5 RETURNING id',
-      values: [title, body, tags, updatedAt, id]
+      text: 'UPDATE songs SET title = $1, year = $2, genre = $3, performer = $4, duration = $5, album_id = $6, updated_at = $7 WHERE id = $8 RETURNING id',
+      values: [title, year, genre, performer, duration, albumId, updatedAt, id]
     }
 
     const result = await this._pool.query(query)

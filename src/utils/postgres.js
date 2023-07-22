@@ -12,6 +12,6 @@ const mapRowToModel = (row) => {
   }
 }
 
-module.export = {
+module.exports = {
   mapRowToModel
 }

@@ -20,7 +20,7 @@ class AlbumsHandler {
 
   async getByIdHandler (request) {
     const { id } = request.params
-    const album = await this._service.getById(id)
+    const album = await this._service.getById(id, true)
     return successResponse({
       data: {
         album
@@ -29,22 +29,22 @@ class AlbumsHandler {
   }
 
   async postHandler (request, h) {
-    this._validator.validateAlbumsPayload(request.payload)
-    const { title = 'untitled', body, tags } = request.payload
+    this._validator.validatePayload(request.payload)
+    const { name, year } = request.payload
 
-    const albumId = await this._service.addAlbums({ title, body, tags })
+    const albumId = await this._service.create({ name, year })
 
-    h.response().code(201)
-    return successResponse({
+    const response = h.response(successResponse({
       data: {
         albumId
       },
       message: 'Album berhasil ditambahkan'
-    })
+    })).code(201)
+    return response
   }
 
   async putByIdHandler (request) {
-    this._validator.validateAlbumsPayload(request.payload)
+    this._validator.validatePayload(request.payload)
     const { id } = request.params
 
     await this._service.updateById(id, request.payload)

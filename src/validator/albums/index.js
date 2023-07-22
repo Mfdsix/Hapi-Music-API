@@ -1,11 +1,11 @@
-const InvariantError = require('../../exceptions/InvariantError')
+const ClientError = require('../../exceptions/ClientError')
 const { AlbumPayloadSchema } = require('./schema')
 
 const AlbumsValidator = {
-  validateNotePayload: (payload) => {
+  validatePayload: (payload) => {
     const validationResult = AlbumPayloadSchema.validate(payload)
     if (validationResult.error) {
-      throw new InvariantError(validationResult.error.message)
+      throw new ClientError(validationResult.error.message)
     }
   }
 }

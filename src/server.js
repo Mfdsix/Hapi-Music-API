@@ -12,7 +12,6 @@ const SongsService = require('./services/postgres/SongsService')
 // validators
 const AlbumsValidator = require('./validator/albums')
 const SongsValidator = require('./validator/songs')
-const ClientError = require('./exceptions/ClientError')
 
 const init = async () => {
   const server = Hapi.server({
@@ -37,7 +36,7 @@ const init = async () => {
         status: response.status || 'error',
         message: response.message || 'Terjadi kegagalan pada server kami'
       })
-      newResponse.code(response.code || 500)
+      newResponse.code(response.statusCode || 500)
       return newResponse
     }
 

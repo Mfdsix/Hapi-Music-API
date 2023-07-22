@@ -1,151 +1,66 @@
-const ClientError = require('../../exceptions/ClientError')
+const { successResponse } = require('../../utils/response')
+const autoBind = require('auto-bind')
 
 class AlbumsHandler {
   constructor (service, validator) {
     this._service = service
     this._validator = validator
 
-    this.postHandler = this.postHandler.bind(this)
-    this.getAllHandler = this.getAllHandler.bind(this)
-    this.getByIdHandler = this.getByIdHandler.bind(this)
-    this.putByIdHandler = this.putByIdHandler.bind(this)
-    this.deleteByIdHandler = this.deleteByIdHandler.bind(this)
+    autoBind(this)
   }
 
   async getAllHandler () {
-    const Albumss = await this._service.getAll()
-    return {
-      status: 'success',
-      data: {
-        Albumss
+    const albums = await this._service.getAll()
+    return successResponse({
+      datas: {
+        albums
       }
-    }
+    })
   }
 
-  async getByIdHandler (request, h) {
-    try {
-      const { id } = request.params
-      const Albums = await this._service.getById(id)
-      return {
-        status: 'success',
-        data: {
-          Albums
-        }
+  async getByIdHandler (request) {
+    const { id } = request.params
+    const album = await this._service.getById(id)
+    return successResponse({
+      data: {
+        album
       }
-    } catch (error) {
-      if (error instanceof ClientError) {
-        const response = h.response({
-          status: 'fail',
-          message: error.message
-        })
-        response.code(error.statusCode)
-        return response
-      }
-
-      // Server ERROR!
-      const response = h.response({
-        status: 'error',
-        message: 'Maaf, terjadi kegagalan pada server kami.'
-      })
-      response.code(500)
-      return response
-    }
+    })
   }
 
   async postHandler (request, h) {
-    try {
-      this._validator.validateAlbumsPayload(request.payload)
-      const { title = 'untitled', body, tags } = request.payload
+    this._validator.validateAlbumsPayload(request.payload)
+    const { title = 'untitled', body, tags } = request.payload
 
-      const AlbumsId = await this._service.addAlbums({ title, body, tags })
+    const albumId = await this._service.addAlbums({ title, body, tags })
 
-      const response = h.response({
-        status: 'success',
-        message: 'Album berhasil ditambahkan',
-        data: {
-          AlbumsId
-        }
-      })
-      response.code(201)
-      return response
-    } catch (error) {
-      if (error instanceof ClientError) {
-        const response = h.response({
-          status: 'fail',
-          message: error.message
-        })
-        response.code(error.statusCode)
-        return response
-      }
-
-      // Server ERROR!
-      const response = h.response({
-        status: 'error',
-        message: 'Maaf, terjadi kegagalan pada server kami.'
-      })
-      response.code(500)
-      return response
-    }
+    h.response().code(201)
+    return successResponse({
+      data: {
+        albumId
+      },
+      message: 'Album berhasil ditambahkan'
+    })
   }
 
-  async putByIdHandler (request, h) {
-    try {
-      this._validator.validateAlbumsPayload(request.payload)
-      const { id } = request.params
+  async putByIdHandler (request) {
+    this._validator.validateAlbumsPayload(request.payload)
+    const { id } = request.params
 
-      await this._service.updateById(id, request.payload)
+    await this._service.updateById(id, request.payload)
 
-      return {
-        status: 'success',
-        message: 'Album berhasil diperbarui'
-      }
-    } catch (error) {
-      if (error instanceof ClientError) {
-        const response = h.response({
-          status: 'fail',
-          message: error.message
-        })
-        response.code(error.statusCode)
-        return response
-      }
-
-      // Server ERROR!
-      const response = h.response({
-        status: 'error',
-        message: 'Maaf, terjadi kegagalan pada server kami.'
-      })
-      response.code(500)
-      return response
-    }
+    return successResponse({
+      message: 'Album berhasil diupdate'
+    })
   }
 
-  async deleteByIdHandler (request, h) {
-    try {
-      const { id } = request.params
-      await this._service.deleteById(id)
+  async deleteByIdHandler (request) {
+    const { id } = request.params
+    await this._service.deleteById(id)
 
-      return {
-        status: 'success',
-        message: 'Album berhasil dihapus'
-      }
-    } catch (error) {
-      if (error instanceof ClientError) {
-        const response = h.response({
-          status: 'fail',
-          message: error.message
-        })
-        response.code(error.statusCode)
-        return response
-      }
-
-      // Server ERROR!
-      const response = h.response({
-        status: 'error',
-        message: 'Maaf, terjadi kegagalan pada server kami.'
-      })
-      response.code(500)
-      return response
-    }
+    return successResponse({
+      message: 'Album berhasil dihapus'
+    })
   }
 }
 

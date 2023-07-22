@@ -12,6 +12,7 @@ const SongsService = require('./services/postgres/SongsService')
 // validators
 const AlbumsValidator = require('./validator/albums')
 const SongsValidator = require('./validator/songs')
+const ClientError = require('./exceptions/ClientError')
 
 const init = async () => {
   const server = Hapi.server({
@@ -24,18 +25,37 @@ const init = async () => {
     }
   })
 
+  // set custom error handler
+  server.ext('onPreResponse', (request, h) => {
+    const { response } = request
+    if (response instanceof Error) {
+      if (!response.isServer) {
+        return h.continue
+      }
+
+      const newResponse = h.response({
+        status: response.status || 'error',
+        message: response.message || 'Terjadi kegagalan pada server kami'
+      })
+      newResponse.code(response.code || 500)
+      return newResponse
+    }
+
+    return h.continue
+  })
+
   await server.register({
     plugin: albums,
     options: {
       service: new AlbumsService(),
-      validator: new AlbumsValidator()
+      validator: AlbumsValidator
     }
   })
   await server.register({
     plugin: songs,
     options: {
       service: new SongsService(),
-      validator: new SongsValidator()
+      validator: SongsValidator
     }
   })
 

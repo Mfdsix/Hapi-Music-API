@@ -3,25 +3,7 @@ require('dotenv').config()
 const Hapi = require('@hapi/hapi')
 const JWT = require('@hapi/jwt')
 
-// api
-const albums = require('./api/albums')
-const songs = require('./api/songs')
-const authentications = require('./api/authentications')
-const users = require('./api/users')
-
-// services
-const AlbumsService = require('./services/postgres/AlbumsService')
-const SongsService = require('./services/postgres/SongsService')
-const AuthenticationsService = require('./services/postgres/AuthenticationsService')
-const UsersService = require('./services/postgres/UsersService')
-
-// validators
-const AlbumsValidator = require('./validator/albums')
-const SongsValidator = require('./validator/songs')
-const AuthenticationsValidator = require('./validator/authentications')
-const UsersValidator = require('./validator/users')
-
-const TokenManager = require('./utils/token-manager')
+const { registerPlugin } = require('./plugins')
 
 const init = async () => {
   const server = Hapi.server({
@@ -35,6 +17,11 @@ const init = async () => {
   })
 
   // implement hapi/jwt strategy
+  await server.register([
+    {
+      plugin: JWT
+    }
+  ])
   server.auth.strategy('musicapp_jwt', 'jwt', {
     keys: process.env.ACCESS_TOKEN_KEY,
     verify: {
@@ -70,36 +57,7 @@ const init = async () => {
     return h.continue
   })
 
-  await server.register({
-    plugin: authentications,
-    options: {
-      authenticationsService: new AuthenticationsService(),
-      usersService: new UsersService(),
-      tokenManager: TokenManager,
-      validator: AuthenticationsValidator
-    }
-  })
-  await server.register({
-    plugin: users,
-    options: {
-      service: new UsersService(),
-      validator: UsersValidator
-    }
-  })
-  await server.register({
-    plugin: albums,
-    options: {
-      service: new AlbumsService(),
-      validator: AlbumsValidator
-    }
-  })
-  await server.register({
-    plugin: songs,
-    options: {
-      service: new SongsService(),
-      validator: SongsValidator
-    }
-  })
+  await registerPlugin(server)
 
   await server.start()
 }

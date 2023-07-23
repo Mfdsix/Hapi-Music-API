@@ -9,8 +9,8 @@ const PlaylistSongActivitiessService = require('./PlaylistSongActivitiesService'
 class PlaylistSongsService {
   constructor () {
     this._pool = new Pool()
-    this._songsService = SongsService()
-    this._activitiesService = PlaylistSongActivitiessService()
+    this._songsService = new SongsService()
+    this._activitiesService = new PlaylistSongActivitiessService()
   }
 
   async getAll ({

@@ -23,7 +23,7 @@ class PlaylistsHandler {
   }
 
   async postHandler (request, h) {
-    this._validator.validatePlaylistPayload(request.payload)
+    this._validator.validatePayload(request.payload)
     const { name } = request.payload
     const { id: credentialId } = request.auth.credentials
 

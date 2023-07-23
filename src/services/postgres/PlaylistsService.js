@@ -4,10 +4,12 @@ const InvariantError = require('../../exceptions/InvariantError')
 const NotFoundError = require('../../exceptions/NotFoundError')
 const AuthorizationError = require('../../exceptions/AuthorizationError')
 const { mapRowToModel } = require('../../utils/postgres')
+const PlaylistSongsService = require('./PlaylistSongsService')
 
 class PlaylistsService {
   constructor () {
     this._pool = new Pool()
+    this._playlistSongService = new PlaylistSongsService()
   }
 
   async getAll ({
@@ -64,6 +66,34 @@ class PlaylistsService {
     if (!result.rows.length) {
       throw new NotFoundError('Playlist gagal dihapus. Id tidak ditemukan')
     }
+  }
+
+  async addSong ({
+    playlistId = undefined,
+    songId = undefined,
+    owner = undefined
+  }) {
+    await this._checkOwner(playlistId, owner)
+
+    return await this._playlistSongService.create({
+      playlistId,
+      songId,
+      owner
+    })
+  }
+
+  async deleteSong ({
+    playlistId = undefined,
+    songId = undefined,
+    owner = undefined
+  }) {
+    await this._checkOwner(playlistId, owner)
+
+    return await this._playlistSongService.delete({
+      playlistId,
+      songId,
+      owner
+    })
   }
 
   async _checkOwner (id, owner) {

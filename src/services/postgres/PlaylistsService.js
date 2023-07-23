@@ -10,7 +10,9 @@ class PlaylistsService {
     this._pool = new Pool()
   }
 
-  async getAll (owner) {
+  async getAll ({
+    owner
+  }) {
     const result = await this._pool.query('SELECT id, name, owner FROM playlists WHERE owner = $1', [
       owner
     ])
@@ -47,22 +49,6 @@ class PlaylistsService {
     }
 
     return result.rows[0].id
-  }
-
-  async updateById (id, owner = null, { name }) {
-    await this._checkOwner(id, owner)
-
-    const updatedAt = new Date().toISOString()
-    const query = {
-      text: 'UPDATE playlists SET name = $1, updated_at = $3 WHERE id = $4 RETURNING id',
-      values: [name, updatedAt, id]
-    }
-
-    const result = await this._pool.query(query)
-
-    if (!result.rows.length) {
-      throw new NotFoundError('Gagal memperbarui Playlist. Id tidak ditemukan')
-    }
   }
 
   async deleteById (id, owner = null) {

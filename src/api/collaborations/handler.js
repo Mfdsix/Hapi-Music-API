@@ -1,5 +1,6 @@
 const autoBind = require('auto-bind')
 const { successResponse } = require('../../utils/response')
+const AuthorizationError = require('../../exceptions/AuthorizationError')
 
 class CollaborationsHandler {
   constructor (service, validator) {
@@ -14,6 +15,8 @@ class CollaborationsHandler {
 
     const { playlistId, userId } = request.payload
     const { id: credentialId } = request.auth.credentials
+
+    if (credentialId === userId) throw new AuthorizationError('Tidak dapat menambahkan diri sendiri sebagai kolaborator')
 
     const collaborationId = await this._service.addCollaborator({
       playlistId,

@@ -29,14 +29,18 @@ class PlaylistsService {
   async getAll ({
     owner
   }) {
-    const result = await this._pool.query('SELECT id, name, owner FROM playlists WHERE owner = $1', [
+    const result = await this._pool.query(`SELECT p.id, p.name, u.username FROM playlists p
+    LEFT JOIN collaborations c ON c.playlist_id = p.id
+    JOIN users u ON u.id = p.owner
+    WHERE p.owner = $1 OR c.user_id = $1
+    GROUP BY p.id, u.username`, [
       owner
     ])
     return result.rows.map(mapPlaylistRowToModel)
   }
 
   async getById (id, owner = null, includeSongs = false) {
-    await this._checkOwner(id, owner)
+    await this._checkAccess(id, owner)
 
     const query = {
       text: `
@@ -97,7 +101,7 @@ class PlaylistsService {
     songId = undefined,
     owner = undefined
   }) {
-    await this._checkOwner(playlistId, owner)
+    await this._checkAccess(playlistId, owner)
 
     return await this._playlistSongService.create({
       playlistId,
@@ -111,7 +115,7 @@ class PlaylistsService {
     songId = undefined,
     owner = undefined
   }) {
-    await this._checkOwner(playlistId, owner)
+    await this._checkAccess(playlistId, owner)
 
     return await this._playlistSongService.delete({
       playlistId,
@@ -147,7 +151,7 @@ class PlaylistsService {
   }
 
   async getActivities (playlistId, owner) {
-    await this._checkOwner(playlistId, owner)
+    await this._checkAccess(playlistId, owner)
 
     return this._activityService.getAll({
       playlistId
@@ -173,13 +177,13 @@ class PlaylistsService {
 
   async _checkAccess (id, userId) {
     try {
-      await this.verifyNoteOwner(id, userId)
+      await this._checkOwner(id, userId)
     } catch (error) {
       if (error instanceof NotFoundError) {
         throw error
       }
 
-      await this._collaborationService.checkAccess({
+      await this._collaborationsService.checkAccess({
         playlistId: id,
         userId
       })

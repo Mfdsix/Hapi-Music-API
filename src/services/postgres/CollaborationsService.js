@@ -3,21 +3,25 @@ const { nanoid } = require('nanoid')
 const InvariantError = require('../../exceptions/InvariantError')
 const NotFoundError = require('../../exceptions/NotFoundError')
 const AuthorizationError = require('../../exceptions/AuthorizationError')
+const UsersService = require('./UsersService')
 
 class CollaborationsService {
   constructor () {
     this._pool = new Pool()
+    this._userService = new UsersService()
   }
 
   async create ({
     playlistId = undefined,
     userId = undefined
   }) {
+    await this._userService.getById(userId)
+
     const id = `clb-${nanoid(16)}`
     const createdAt = new Date().toISOString()
     const updatedAt = createdAt
 
-    const result = await this._pool.query('INSERT INTO collaborations VALUES ($1, $2, $3, $4, $5)', [
+    const result = await this._pool.query('INSERT INTO collaborations VALUES ($1, $2, $3, $4, $5) RETURNING id', [
       id, playlistId, userId, createdAt, updatedAt
     ])
 

@@ -1,7 +1,6 @@
 const { Pool } = require('pg')
 const { nanoid } = require('nanoid')
 const InvariantError = require('../../exceptions/InvariantError')
-const { mapRowToModel } = require('../../utils/postgres')
 
 class PlaylistSongActivitiesService {
   constructor () {

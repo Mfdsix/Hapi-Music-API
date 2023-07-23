@@ -6,6 +6,7 @@ const AuthorizationError = require('../../exceptions/AuthorizationError')
 const { mapRowToModel } = require('../../utils/postgres')
 const PlaylistSongsService = require('./PlaylistSongsService')
 const PlaylistSongActivitiesService = require('./PlaylistSongActivitiesService')
+const CollaborationsService = require('./CollaborationsService')
 
 const mapPlaylistRowToModel = (playlist) => {
   const username = playlist.username || playlist.owner
@@ -22,6 +23,7 @@ class PlaylistsService {
     this._pool = new Pool()
     this._playlistSongService = new PlaylistSongsService()
     this._activityService = new PlaylistSongActivitiesService()
+    this._collaborationsService = new CollaborationsService()
   }
 
   async getAll ({
@@ -115,6 +117,32 @@ class PlaylistsService {
       playlistId,
       songId,
       owner
+    })
+  }
+
+  async addCollaborator ({
+    playlistId = undefined,
+    userId = undefined,
+    owner = undefined
+  }) {
+    await this._checkOwner(playlistId, owner)
+
+    return await this._collaborationsService.create({
+      playlistId,
+      userId
+    })
+  }
+
+  async deleteCollaborator ({
+    playlistId = undefined,
+    userId = undefined,
+    owner = undefined
+  }) {
+    await this._checkOwner(playlistId, owner)
+
+    return await this._collaborationsService.delete({
+      playlistId,
+      userId
     })
   }
 

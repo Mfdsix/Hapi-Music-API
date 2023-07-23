@@ -170,6 +170,21 @@ class PlaylistsService {
 
     return result.rows[0]
   }
+
+  async _checkAccess (id, userId) {
+    try {
+      await this.verifyNoteOwner(id, userId)
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        throw error
+      }
+
+      await this._collaborationService.checkAccess({
+        playlistId: id,
+        userId
+      })
+    }
+  }
 }
 
 module.exports = PlaylistsService

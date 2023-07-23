@@ -23,7 +23,6 @@ class AuthenticationsHandler {
     await this._authenticationsService.addRefreshToken(refreshToken)
 
     const response = h.response(successResponse({
-      message: 'Autentikasi berhasil',
       data: {
         accessToken,
         refreshToken
@@ -42,7 +41,6 @@ class AuthenticationsHandler {
 
     const accessToken = this._tokenManager.generateAccessToken({ id })
     return successResponse({
-      message: 'Access Token berhasil diperbarui',
       data: {
         accessToken
       }

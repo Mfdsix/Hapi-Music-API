@@ -22,16 +22,23 @@ class SongsService {
   async getAll ({
     title = undefined,
     performer = undefined,
-    albumId = undefined
+    albumId = undefined,
+    where = undefined
   }) {
-    const where = []
+    const filter = []
+    let whereQuery = null
 
-    if (title) where.push(`title ilike '%${title}%'`)
-    if (performer) where.push(`performer ilike '%${performer}%'`)
-    if (albumId) where.push(`album_id = '${albumId}'`)
+    if (where) {
+      whereQuery = `WHERE ${where}`
+    } else {
+      if (title) filter.push(`title ilike '%${title}%'`)
+      if (performer) filter.push(`performer ilike '%${performer}%'`)
+      if (albumId) filter.push(`album_id = '${albumId}'`)
+      whereQuery = filter.length > 0 ? ' WHERE ' + filter.join(' AND ') : ''
+    }
 
     const result = await this._pool.query(`SELECT id, title, performer FROM songs
-    ${where.length > 0 ? ' WHERE ' + where.join(' AND ') : ''} `)
+    ${whereQuery}`)
     return result.rows.map(mapSongRowToModel)
   }
 

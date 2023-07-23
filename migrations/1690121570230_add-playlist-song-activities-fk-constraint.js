@@ -5,9 +5,9 @@ const fkUserName = 'fk_playlist_song_activities.user'
 const fkStrategy = 'ON UPDATE CASCADE ON DELETE CASCADE'
 
 exports.up = pgm => {
-  pgm.addConstraint(tableName, fkPlaylistName, `FOREIGN(playlist_id) REFERENCES playlists(id) ${fkStrategy}`)
-  pgm.addConstraint(tableName, fkSongName, `FOREIGN(song_id) REFERENCES songs(id) ${fkStrategy}`)
-  pgm.addConstraint(tableName, fkUserName, `FOREIGN(user_id) REFERENCES users(id) ${fkStrategy}`)
+  pgm.addConstraint(tableName, fkPlaylistName, `FOREIGN KEY(playlist_id) REFERENCES playlists(id) ${fkStrategy}`)
+  pgm.addConstraint(tableName, fkSongName, `FOREIGN KEY(song_id) REFERENCES songs(id) ${fkStrategy}`)
+  pgm.addConstraint(tableName, fkUserName, `FOREIGN KEY(user_id) REFERENCES users(id) ${fkStrategy}`)
 }
 
 exports.down = pgm => {

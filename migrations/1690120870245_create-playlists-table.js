@@ -1,24 +1,28 @@
 exports.up = pgm => {
-  pgm.createTable('users', {
+  pgm.createTable('playlists', {
     id: {
       type: 'VARCHAR(25)',
       primaryKey: true
     },
-    username: {
+    name: {
       type: 'VARCHAR(50)',
       notNull: true
     },
-    password: {
-      type: 'VARCHAR(150)',
+    owner: {
+      type: 'VARCHAR(25)',
       notNull: true
     },
-    fullname: {
-      type: 'VARCHAR(50)',
+    created_at: {
+      type: 'TEXT',
+      notNull: true
+    },
+    updated_at: {
+      type: 'TEXT',
       notNull: true
     }
   })
 }
 
 exports.down = pgm => {
-  pgm.dropTable('users')
+  pgm.dropTable('playlists')
 }

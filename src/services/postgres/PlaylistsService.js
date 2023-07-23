@@ -6,6 +6,16 @@ const AuthorizationError = require('../../exceptions/AuthorizationError')
 const { mapRowToModel } = require('../../utils/postgres')
 const PlaylistSongsService = require('./PlaylistSongsService')
 
+const mapPlaylistRowToModel = (playlist) => {
+  const username = playlist.username || playlist.owner
+  delete playlist.owner
+
+  return {
+    ...mapRowToModel(playlist),
+    username
+  }
+}
+
 class PlaylistsService {
   constructor () {
     this._pool = new Pool()
@@ -18,20 +28,30 @@ class PlaylistsService {
     const result = await this._pool.query('SELECT id, name, owner FROM playlists WHERE owner = $1', [
       owner
     ])
-    return result.rows.map(mapRowToModel)
+    return result.rows.map(mapPlaylistRowToModel)
   }
 
   async getById (id, owner = null, includeSongs = false) {
-    const playlist = await this._checkOwner(id, owner)
+    await this._checkOwner(id, owner)
+
+    const query = {
+      text: `
+      SELECT p.*, u.username as owner FROM playlists p
+      JOIN users u ON u.id = p.owner
+      WHERE p.id = $1
+      `,
+      values: [id]
+    }
+    const result = await this._pool.query(query)
+    const playlist = result.rows[0]
 
     if (includeSongs) {
-      // TODO:
-    //   playlist.songs = await this._songService.getAll({
-    //     albumId: id
-    //   })
+      playlist.songs = await this._playlistSongService.getAll({
+        playlistId: id
+      })
     }
 
-    return playlist
+    return mapPlaylistRowToModel(playlist)
   }
 
   async create ({ name, owner }) {
@@ -57,7 +77,7 @@ class PlaylistsService {
     await this._checkOwner(id, owner)
 
     const query = {
-      text: 'DELETE FROM albums WHERE id = $1 RETURNING id',
+      text: 'DELETE FROM playlists WHERE id = $1 RETURNING id',
       values: [id]
     }
 
@@ -98,7 +118,7 @@ class PlaylistsService {
 
   async _checkOwner (id, owner) {
     const query = {
-      text: 'SELECT * FROM playlists WHERE id = $1',
+      text: 'SELECT owner FROM playlists WHERE id = $1',
       values: [id]
     }
     const result = await this._pool.query(query)

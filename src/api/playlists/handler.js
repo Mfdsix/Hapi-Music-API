@@ -2,9 +2,9 @@ const autoBind = require('auto-bind')
 const { successResponse } = require('../../utils/response')
 
 class PlaylistsHandler {
-  constructor (service, validation) {
+  constructor (service, validator) {
     this._service = service
-    this._validation = validation
+    this._validator = validator
 
     autoBind(this)
   }
@@ -16,7 +16,7 @@ class PlaylistsHandler {
       owner: credentialId
     })
     return successResponse({
-      datas: {
+      data: {
         playlists
       }
     })
@@ -43,7 +43,9 @@ class PlaylistsHandler {
 
   async deleteByIdHandler (request) {
     const { id } = request.params
-    await this._service.deleteById(id)
+    const { id: credentialId } = request.auth.credentials
+
+    await this._service.deleteById(id, credentialId)
 
     return successResponse({
       message: 'Playlist berhasil dihapus'

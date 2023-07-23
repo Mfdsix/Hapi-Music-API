@@ -4,7 +4,6 @@ const playlistSongs = require('../api/playlist-songs')
 
 // services
 const PlaylistsService = require('../services/postgres/PlaylistsService')
-const PlaylistSongsService = require('../services/postgres/PlaylistSongsService')
 
 // validators
 const PlaylistsValidator = require('../validator/playlists')
@@ -21,7 +20,7 @@ module.exports = async (server) => {
   await server.register({
     plugin: playlistSongs,
     options: {
-      service: new PlaylistSongsService(),
+      service: new PlaylistsService(),
       validator: PlaylistSongsValidator
     }
   })

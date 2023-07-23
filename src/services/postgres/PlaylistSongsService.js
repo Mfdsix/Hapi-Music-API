@@ -17,12 +17,14 @@ class PlaylistSongsService {
     playlistId = undefined
   }) {
     const songs = await this._songsService.getAll({
-      where: `id IN SELECT song_id FROM playlist_songs WHERE playlist_id = '${playlistId}'`
+      where: ` id IN (SELECT song_id FROM playlist_songs WHERE playlist_id = '${playlistId}')`
     })
     return songs.map(mapRowToModel)
   }
 
   async create ({ playlistId, songId, owner }) {
+    await this._songsService.getById(songId)
+
     const id = `pls-${nanoid(16)}`
     const createdAt = new Date().toISOString()
     const updatedAt = createdAt

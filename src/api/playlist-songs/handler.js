@@ -2,9 +2,9 @@ const autoBind = require('auto-bind')
 const { successResponse } = require('../../utils/response')
 
 class PlaylistSongsHandler {
-  constructor (service, validation) {
+  constructor (service, validator) {
     this._service = service
-    this._validation = validation
+    this._validator = validator
 
     autoBind(this)
   }
@@ -15,7 +15,7 @@ class PlaylistSongsHandler {
 
     const playlist = await this._service.getById(playlistId, credentialId, true)
     return successResponse({
-      datas: {
+      data: {
         playlist
       }
     })

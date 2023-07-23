@@ -4,6 +4,7 @@ const { hashPassword, comparePassword } = require('../../utils/password-hash')
 const InvariantError = require('../../exceptions/InvariantError')
 const NotFoundError = require('../../exceptions/NotFoundError')
 const AuthenticationError = require('../../exceptions/AuthenticationError')
+const ClientError = require('../../exceptions/ClientError')
 
 class UsersService {
   constructor () {
@@ -14,7 +15,7 @@ class UsersService {
     const existingUser = await this.checkUsername(username)
 
     if (existingUser) {
-      throw new InvariantError('Gagal menambahkan user. Username sudah digunakan.')
+      throw new ClientError('Gagal menambahkan user. Username sudah digunakan.')
     }
 
     const id = `usr-${nanoid(16)}`
@@ -34,7 +35,7 @@ class UsersService {
 
   async checkUsername (username) {
     const query = {
-      text: 'SELECT username FROM users WHERE username = $1',
+      text: 'SELECT id, username, password FROM users WHERE username = $1',
       values: [username]
     }
 

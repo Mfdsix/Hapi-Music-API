@@ -42,15 +42,17 @@ const init = async () => {
   server.ext('onPreResponse', (request, h) => {
     const { response } = request
     if (response instanceof Error) {
+      let payload = response
       if (!response.isServer) {
-        return h.continue
+        payload = response.output.payload
+        payload.status = 'fail'
       }
 
       const newResponse = h.response({
-        status: response.status || 'error',
-        message: response.message || 'Terjadi kegagalan pada server kami'
+        status: payload?.status || 'error',
+        message: payload?.message || 'Terjadi kegagalan pada server kami'
       })
-      newResponse.code(response.statusCode || 500)
+      newResponse.code(payload?.statusCode || 500)
       return newResponse
     }
 

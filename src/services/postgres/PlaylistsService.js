@@ -5,6 +5,7 @@ const NotFoundError = require('../../exceptions/NotFoundError')
 const AuthorizationError = require('../../exceptions/AuthorizationError')
 const { mapRowToModel } = require('../../utils/postgres')
 const PlaylistSongsService = require('./PlaylistSongsService')
+const PlaylistSongActivitiesService = require('./PlaylistSongActivitiesService')
 
 const mapPlaylistRowToModel = (playlist) => {
   const username = playlist.username || playlist.owner
@@ -20,6 +21,7 @@ class PlaylistsService {
   constructor () {
     this._pool = new Pool()
     this._playlistSongService = new PlaylistSongsService()
+    this._activityService = new PlaylistSongActivitiesService()
   }
 
   async getAll ({
@@ -113,6 +115,14 @@ class PlaylistsService {
       playlistId,
       songId,
       owner
+    })
+  }
+
+  async getActivities (playlistId, owner) {
+    await this._checkOwner(playlistId, owner)
+
+    return this._activityService.getAll({
+      playlistId
     })
   }
 

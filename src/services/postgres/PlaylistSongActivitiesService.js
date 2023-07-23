@@ -11,10 +11,15 @@ class PlaylistSongActivitiesService {
   async getAll ({
     playlistId = undefined
   }) {
-    const result = await this._pool.query('SELECT id, playlist_id, song_id, user_id, action FROM playlist_song_activities WHERE playlist_id = $1', [
+    const result = await this._pool.query(`SELECT u.username, s.title, a.action, a.created_at as time FROM playlist_song_activities a
+    JOIN users u ON u.id = a.user_id
+    JOIN songs s ON s.id = a.song_id
+    WHERE a.playlist_id = $1
+    ORDER BY a.created_at ASC
+    `, [
       playlistId
     ])
-    return result.rows.map(mapRowToModel)
+    return result.rows
   }
 
   async create ({ playlistId, songId, userId, action }) {

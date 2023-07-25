@@ -3,19 +3,27 @@ const { nanoid } = require('nanoid')
 const InvariantError = require('../../exceptions/InvariantError')
 
 class AlbumLikesService {
-  constructor () {
+  constructor (cacheService) {
     this._pool = new Pool()
+    this._cacheService = cacheService
   }
 
   async countLikes (albumId) {
-    const query = {
-      text: 'SELECT COUNT(id) as count FROM album_likes where album_id = $1',
-      values: [albumId]
+    try {
+      const result = await this._cacheService.get(`album-likes:${albumId}`)
+      return parseInt(result)
+    } catch (e) {
+      const query = {
+        text: 'SELECT COUNT(id) as count FROM album_likes where album_id = $1',
+        values: [albumId]
+      }
+
+      const result = await this._pool.query(query)
+      const count = result.rows?.[0]?.count || 0
+
+      await this._cacheService.set(`album-likes:${albumId}`, count)
+      return count
     }
-
-    const result = await this._pool.query(query)
-
-    return result.rows?.[0]?.count || 0
   }
 
   async addLike ({
@@ -36,6 +44,8 @@ class AlbumLikesService {
       throw new InvariantError('Like gagal ditambahkan')
     }
 
+    await this._cacheService.delete(`album-likes:${albumId}`)
+
     return result.rows[0].id
   }
 
@@ -52,6 +62,8 @@ class AlbumLikesService {
     if (!result.rows[0].id) {
       throw new InvariantError('Like gagal dihapus')
     }
+
+    await this._cacheService.delete(`album-likes:${albumId}`)
   }
 }
 

@@ -4,7 +4,7 @@ const fs = require('fs')
 class StorageService {
   constructor () {
     const folder = '/uploads'
-    this._folder = path.resolve(process.cwd(), folder)
+    this._folder = path.resolve(__dirname, `../../../${folder}`)
     this._baseUrl = folder
 
     if (!fs.existsSync(folder)) {
@@ -32,7 +32,7 @@ class StorageService {
 
   getFileUrl (file) {
     const targetFile = (file[0] === '/') ? file.substring(1, file.length - 1) : `/${file}`
-    return `http://${process.env.HOST}:${process.env.PORT}/${this._baseUrl}/${targetFile}`
+    return `http://${process.env.HOST}:${process.env.PORT}${this._baseUrl}/${targetFile}`
   }
 }
 

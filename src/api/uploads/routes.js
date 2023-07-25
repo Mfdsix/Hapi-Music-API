@@ -19,7 +19,7 @@ const routes = (handler) => [
     path: '/uploads/{param*}',
     handler: {
       directory: {
-        path: path.resolve(process.cwd(), '/uploads')
+        path: path.resolve(__dirname, '../../../uploads')
       }
     }
   }

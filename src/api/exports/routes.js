@@ -3,10 +3,10 @@ const prefix = '/export'
 const routes = (handler) => [
   {
     method: 'POST',
-    path: `${prefix}/playlist/{id}`,
+    path: `${prefix}/playlists/{id}`,
     handler: handler.exportPlaylistHandler,
     options: {
-      auth: 'notesapp_jwt'
+      auth: 'musicapp_jwt'
     }
   }
 ]

@@ -10,13 +10,13 @@ class CacheService {
 
     this._client.on('error', (error) => {
       // eslint-disable-next-line no-console
-      console.error(error)
+      console.error(error.message || 'Koneksi Redis Gagal')
     })
 
     this._client.connect()
   }
 
-  async set (key, value, expirationInSecond = 3600) {
+  async set (key, value, expirationInSecond = 1800) {
     await this._client.set(key, value, {
       EX: expirationInSecond
     })

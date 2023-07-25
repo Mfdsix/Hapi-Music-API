@@ -1,5 +1,5 @@
 const autoBind = require('auto-bind')
-const { successResponse } = require('../')
+const { successResponse } = require('../../utils/response')
 
 class UploadsHandler {
   constructor (service, validator, albumsService) {

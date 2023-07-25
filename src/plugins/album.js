@@ -26,7 +26,8 @@ module.exports = async (server) => {
   await server.register({
     plugin: albumLikes,
     options: {
-      service: new AlbumLikesService(cacheService)
+      service: new AlbumLikesService(cacheService),
+      albumService: new AlbumLikesService()
     }
   })
   await server.register({

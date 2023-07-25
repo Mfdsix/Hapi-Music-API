@@ -1,4 +1,4 @@
-const uploads = require('./api/uploads')
+const uploads = require('../api/uploads')
 const StorageService = require('../services/storage/StorageService')
 const AlbumsService = require('../services/postgres/AlbumsService')
 const UploadsValidator = require('../validator/uploads')

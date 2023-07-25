@@ -1,6 +1,6 @@
-const exportsAPI = require('./api/exports')
-const ProducerService = require('./services/rabbitmq/ProducerService')
-const ExportsValidator = require('./validator/exports')
+const exportsAPI = require('../api/exports')
+const ProducerService = require('../services/rabbitmq/ProducerService')
+const ExportsValidator = require('../validator/exports')
 
 module.exports = async (server) => {
   await server.register({

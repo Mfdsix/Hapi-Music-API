@@ -2,6 +2,7 @@ require('dotenv').config()
 
 const Hapi = require('@hapi/hapi')
 const JWT = require('@hapi/jwt')
+const Inert = require('@hapi/inert')
 
 const { registerPlugin } = require('./plugins')
 
@@ -20,6 +21,9 @@ const init = async () => {
   await server.register([
     {
       plugin: JWT
+    },
+    {
+      plugin: Inert
     }
   ])
   server.auth.strategy('musicapp_jwt', 'jwt', {

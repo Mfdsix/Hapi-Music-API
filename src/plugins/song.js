@@ -1,10 +1,12 @@
 // apis
-const albums = require('../api/albums')
 const songs = require('../api/songs')
+const albums = require('../api/albums')
+const albumLikes = require('../api/album-likes')
 
 // services
-const AlbumsService = require('../services/postgres/AlbumsService')
 const SongsService = require('../services/postgres/SongsService')
+const AlbumsService = require('../services/postgres/AlbumsService')
+const AlbumLikesService = require('../services/postgres/AlbumLikesService')
 
 // validators
 const AlbumsValidator = require('../validator/albums')
@@ -16,6 +18,12 @@ module.exports = async (server) => {
     options: {
       service: new AlbumsService(),
       validator: AlbumsValidator
+    }
+  })
+  await server.register({
+    plugin: albumLikes,
+    options: {
+      service: new AlbumLikesService()
     }
   })
   await server.register({

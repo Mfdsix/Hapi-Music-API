@@ -5,6 +5,16 @@ const NotFoundError = require('../../exceptions/NotFoundError')
 const { mapRowToModel } = require('../../utils/postgres')
 const SongsService = require('./SongsService')
 
+const mapAlbumRowToModel = (album) => {
+  const coverUrl = album.cover_url
+  delete album.cover_url
+
+  return {
+    ...mapRowToModel(album),
+    coverUrl
+  }
+}
+
 class AlbumsService {
   constructor () {
     this._pool = new Pool()
@@ -27,7 +37,7 @@ class AlbumsService {
       throw new NotFoundError('Album tidak ditemukan')
     }
 
-    const album = result.rows.map(mapRowToModel)[0]
+    const album = result.rows.map(mapAlbumRowToModel)[0]
 
     if (includeSongs) {
       album.songs = await this._songService.getAll({
@@ -81,6 +91,20 @@ class AlbumsService {
 
     if (!result.rows.length) {
       throw new NotFoundError('Album gagal dihapus. Id tidak ditemukan')
+    }
+  }
+
+  async updateCoverUrlById (id, { coverUrl }) {
+    const updatedAt = new Date().toISOString()
+    const query = {
+      text: 'UPDATE albums SET cover_url = $1, updated_at = $2 WHERE id = $3 RETURNING id',
+      values: [coverUrl, updatedAt, id]
+    }
+
+    const result = await this._pool.query(query)
+
+    if (!result.rows.length) {
+      throw new NotFoundError('Gagal mengunggah Sampul. Id tidak ditemukan')
     }
   }
 }

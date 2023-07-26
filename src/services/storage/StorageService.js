@@ -3,9 +3,8 @@ const fs = require('fs')
 
 class StorageService {
   constructor () {
-    const folder = '/uploads'
-    this._folder = path.resolve(__dirname, `../../../${folder}`)
-    this._baseUrl = folder
+    this._folder = path.resolve(__dirname, '../../../uploads')
+    this._baseUrl = '/uploads'
   }
 
   writeFile (file, meta, subFolder = '/images') {

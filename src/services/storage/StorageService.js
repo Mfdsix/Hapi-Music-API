@@ -6,10 +6,6 @@ class StorageService {
     const folder = '/uploads'
     this._folder = path.resolve(__dirname, `../../../${folder}`)
     this._baseUrl = folder
-
-    if (!fs.existsSync(folder)) {
-      fs.mkdirSync(folder, { recursive: true })
-    }
   }
 
   writeFile (file, meta, subFolder = '/images') {

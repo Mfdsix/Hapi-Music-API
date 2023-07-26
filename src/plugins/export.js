@@ -1,5 +1,8 @@
 const exportsAPI = require('../api/exports')
+
 const ProducerService = require('../services/rabbitmq/ProducerService')
+const PlaylistService = require('../services/postgres/PlaylistsService')
+
 const ExportsValidator = require('../validator/exports')
 
 module.exports = async (server) => {
@@ -7,7 +10,8 @@ module.exports = async (server) => {
     plugin: exportsAPI,
     options: {
       service: ProducerService,
-      validator: ExportsValidator
+      validator: ExportsValidator,
+      playlistService: new PlaylistService()
     }
   })
 }

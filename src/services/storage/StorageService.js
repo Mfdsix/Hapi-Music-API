@@ -26,7 +26,7 @@ class StorageService {
   }
 
   getFileUrl (file) {
-    const targetFile = (file[0] === '/') ? file.substring(1, file.length - 1) : `/${file}`
+    const targetFile = (file[0] === '/') ? file.substring(1, file.length) : `/${file}`
     return `http://${process.env.HOST}:${process.env.PORT}${this._baseUrl}/${targetFile}`
   }
 }

@@ -11,7 +11,10 @@ class AlbumLikesService {
   async countLikes (albumId) {
     try {
       const result = await this._cacheService.get(`album-likes:${albumId}`)
-      return parseInt(result)
+      return {
+        source: 'cache',
+        count: parseInt(result)
+      }
     } catch (e) {
       const query = {
         text: 'SELECT COUNT(id) as count FROM album_likes where album_id = $1',
@@ -22,8 +25,24 @@ class AlbumLikesService {
       const count = result.rows?.[0]?.count || 0
 
       await this._cacheService.set(`album-likes:${albumId}`, count)
-      return count
+      return {
+        source: 'db',
+        count: parseInt(count)
+      }
     }
+  }
+
+  async checkLike ({
+    albumId,
+    userId
+  }) {
+    const query = {
+      text: 'SELECT FROM album_likes WHERE album_id = $1 AND user_id = $2',
+      values: [albumId, userId]
+    }
+    const result = await this._pool.query(query)
+
+    return result.rows.length > 0
   }
 
   async addLike ({
